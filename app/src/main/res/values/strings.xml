@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">AllesFlauschig</string>
+    <string name="channel_name">AnjasNotificationChannel</string>
+    <string name="channel_description">Anjas Notification Channel</string>
+    <string name="another_activity">Oasch</string>
+</resources>
