@@ -1,7 +1,6 @@
 package com.example.allesflauschig;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -24,6 +23,7 @@ public class AnotherActivity extends AppCompatActivity {
 
         button_backToMain = findViewById(R.id.button_backToMain);
         button_backToMain.setOnClickListener(v -> backToMain());
+
     }
 
     private void backToMain() {

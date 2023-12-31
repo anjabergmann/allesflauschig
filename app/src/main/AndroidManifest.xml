@@ -36,6 +36,9 @@
                 android:value=".MainActivity"/>
         </activity>
 
+        <receiver android:name=".MyReceiver">
+        </receiver>
+
     </application>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 

@@ -1,18 +1,20 @@
 package com.example.allesflauschig;
 
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.EXTRAS_NOTIFICATION_ID;
 
+import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.RemoteInput;
 
 import com.example.allesflauschig.Exception.CrashHandler;
 
@@ -24,6 +26,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String CHANNEL_ID = "anjasNotificationChannelId";
 
     Button button;
+
+    // Key for the string that's delivered in the action's intent.
+    public static final String KEY_TEXT_REPLY = "key_text_reply";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,30 +58,54 @@ public class MainActivity extends AppCompatActivity {
 
     private void createNotification() {
 
-        Intent notificationIntent = new Intent(this, AnotherActivity.class);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        notificationIntent.putExtra("message", "This is a notification message");
+        CharSequence[] options = { "-5", "-4", "-3", "-2", "-1", "0", "1", "2", "3", "4", "5" };
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 40000, notificationIntent,
-                PendingIntent.FLAG_IMMUTABLE);
+        String replyLabel = "Wie geht's? (-5 mies, 0 mittel, 5 gut)";
+        RemoteInput remoteInput = new RemoteInput.Builder(KEY_TEXT_REPLY)
+                .setLabel(replyLabel)
+                .setAllowFreeFormInput(true)
+                //.setChoices(options)
+                .build();
+
+        Intent someIntent = new Intent(this, MyReceiver.class);
+        someIntent.setAction("com.example.broadcast.MY_NOTIFICATION");
+        //someIntent.putExtra("data", "AAAAAAAANothing to see here, move along.");
+        someIntent.putExtra("blub", "AAAAAAAANothing to see here, move along.");
+        someIntent.putExtra(EXTRAS_NOTIFICATION_ID, "13");
+
+        //sendBroadcast(someIntent);
+
+        // Build a PendingIntent for the reply action to trigger.
+        PendingIntent replyPendingIntent =
+                PendingIntent.getBroadcast(getApplicationContext(),
+                        13, someIntent, PendingIntent.FLAG_MUTABLE);
+
+        // Create the reply action and add the remote input.
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(R.drawable.ic_stat_onesignal_default,
+                        "Wie geht's?", replyPendingIntent)
+                        .addRemoteInput(remoteInput)
+                        .build();
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_onesignal_default)
                 .setContentTitle("Alles flauschig?")
-                .setContentText("Much longer text that cannot fit one line...")
-                .setStyle(new NotificationCompat.BigTextStyle()
-                        .bigText("Much longer text that cannot fit one line... lalalala ich bin ein Keks jajajaja Kekse Kekske Kekse yummie yum"))
+                //.setContentText("Much longer text that cannot fit one line...")
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle()
+                        //.bigText("Much longer text that cannot fit one line... lalalala ich bin ein Keks jajajaja Kekse Kekske Kekse yummie yum"))
+                )
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent)
-                .setOngoing(true)
-                .setAutoCancel(true);
+                .setContentIntent(replyPendingIntent)
+                //.setOngoing(true)
+                .setAutoCancel(true)
+                .addAction(action);
 
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.notify(13, builder.build());
         } else {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.POST_NOTIFICATIONS}, 1);
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
         }
 
     }
