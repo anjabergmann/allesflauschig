@@ -1,7 +1,6 @@
 package com.example.allesflauschig;
 
-import static com.example.allesflauschig.MainActivity.KEY_TEXT_REPLY;
-import static com.example.allesflauschig.utils.AllesFlauschigConstants.EXTRAS_NOTIFICATION_ID;
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.KEY_TEXT_REPLY;
 
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -11,8 +10,13 @@ import android.os.Bundle;
 
 import androidx.core.app.RemoteInput;
 
+import com.example.allesflauschig.utils.AllesFlauschigConstants.Extras;
+import com.example.allesflauschig.utils.CsvUtils;
+
 import org.apache.commons.lang3.math.NumberUtils;
 
+import java.time.Instant;
+import java.util.Objects;
 import java.util.logging.Logger;
 
 public class MyReceiver extends BroadcastReceiver {
@@ -21,21 +25,23 @@ public class MyReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        LOG.info(String.format("Notification answered with: '%s'", getMessageText(intent)));
-        // todo: validate(?) and store reply
+        String answer = getMessageText(intent);
+        LOG.info(String.format("Notification answered with: '%s'", answer));
+        // todo: validate entry?
+        CsvUtils.addEntry(Objects.requireNonNull(context.getDataDir()).getAbsolutePath(), "mood.csv", new String[]{Instant.now().toString(), answer});
         cancelNotification(context, intent);
     }
 
-    private CharSequence getMessageText(Intent intent) {
+    private String getMessageText(Intent intent) {
         Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
         if (remoteInput != null) {
-            return remoteInput.getCharSequence(KEY_TEXT_REPLY);
+            return String.valueOf(remoteInput.getCharSequence(KEY_TEXT_REPLY));
         }
         return null;
     }
 
     private void cancelNotification(Context context, Intent intent) {
-        String notificationIdString = intent.getStringExtra(EXTRAS_NOTIFICATION_ID);
+        String notificationIdString = intent.getStringExtra(Extras.NOTIFICATION_ID);
 
         if (NumberUtils.isDigits(notificationIdString)) {
             LOG.info(String.format("Cancelling notification with id '%s'", notificationIdString));

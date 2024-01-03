@@ -1,6 +1,8 @@
 package com.example.allesflauschig;
 
-import static com.example.allesflauschig.utils.AllesFlauschigConstants.EXTRAS_NOTIFICATION_ID;
+
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.KEY_TEXT_REPLY;
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.NOTIFICATION_CHANNEL_ID;
 
 import android.Manifest;
 import android.app.NotificationChannel;
@@ -17,38 +19,45 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
 import com.example.allesflauschig.Exception.CrashHandler;
+import com.example.allesflauschig.utils.AllesFlauschigConstants.Extras;
+import com.example.allesflauschig.utils.NotificationUtils;
 
 import java.util.logging.Logger;
 
 public class MainActivity extends AppCompatActivity {
 
     Logger LOG = Logger.getLogger(this.getClass().getName());
-    private static final String CHANNEL_ID = "anjasNotificationChannelId";
 
-    Button button;
-
-    // Key for the string that's delivered in the action's intent.
-    public static final String KEY_TEXT_REPLY = "key_text_reply";
+    Button button_notify;
+    Button button_history;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        LOG.info("MainActivity");
+        LOG.info("Started activity MainActivity");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Thread.setDefaultUncaughtExceptionHandler(new CrashHandler(this));
 
-        createNotificationChannel();
-        button = findViewById(R.id.button_notify);
-        button.setOnClickListener(v -> createNotification());
+        NotificationUtils.createNotificationChannel(this);
+
+        button_notify = findViewById(R.id.button_notify);
+        button_notify.setOnClickListener(v -> createNotification());
+
+        button_history = findViewById(R.id.button_history);
+        button_history.setOnClickListener(v -> goToHistory());
+    }
+
+    private void goToHistory() {
+        Intent myIntent = new Intent(this, HistoryActivity.class);
+        this.startActivity(myIntent);
     }
 
     private void createNotificationChannel() {
         CharSequence name = getString(R.string.channel_name);
         String description = getString(R.string.channel_description);
         int importance = NotificationManager.IMPORTANCE_DEFAULT;
-        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+        NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, name, importance);
         channel.setDescription(description);
         // Register the channel with the system; you can't change the importance
         // or other notification behaviors after this.
@@ -71,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         someIntent.setAction("com.example.broadcast.MY_NOTIFICATION");
         //someIntent.putExtra("data", "AAAAAAAANothing to see here, move along.");
         someIntent.putExtra("blub", "AAAAAAAANothing to see here, move along.");
-        someIntent.putExtra(EXTRAS_NOTIFICATION_ID, "13");
+        someIntent.putExtra(Extras.NOTIFICATION_ID, "13");
 
         //sendBroadcast(someIntent);
 
@@ -87,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                         .addRemoteInput(remoteInput)
                         .build();
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_onesignal_default)
                 .setContentTitle("Alles flauschig?")
                 //.setContentText("Much longer text that cannot fit one line...")
