@@ -16,7 +16,15 @@ import androidx.core.app.RemoteInput;
 import com.example.allesflauschig.MyReceiver;
 import com.example.allesflauschig.R;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class NotificationUtils {
+
+    private final static AtomicInteger notificationId = new AtomicInteger(0);
+
+    public static int getNotificationId() {
+        return notificationId.incrementAndGet();
+    }
 
     public static void createNotificationChannel(Context context) {
         CharSequence name = context.getString(R.string.channel_name);
@@ -30,7 +38,7 @@ public class NotificationUtils {
         notificationManager.createNotificationChannel(channel);
     }
 
-    public static Notification createNotification(Context context) {
+    public static Notification createNotification(Context context, Integer notificationId) {
 
         CharSequence[] options = { "-5", "-4", "-3", "-2", "-1", "0", "1", "2", "3", "4", "5" };
 
@@ -43,16 +51,15 @@ public class NotificationUtils {
 
         Intent someIntent = new Intent(context, MyReceiver.class);
         someIntent.setAction("com.example.broadcast.MY_NOTIFICATION");
-        //someIntent.putExtra("data", "AAAAAAAANothing to see here, move along.");
-        someIntent.putExtra("blub", "AAAAAAAANothing to see here, move along.");
-        someIntent.putExtra(AllesFlauschigConstants.Extras.NOTIFICATION_ID, "13");
+        someIntent.putExtra("data", "Nothing to see here, move along.");
+        someIntent.putExtra(AllesFlauschigConstants.Extras.NOTIFICATION_ID, notificationId);
 
         //sendBroadcast(someIntent);
 
         // Build a PendingIntent for the reply action to trigger.
         PendingIntent replyPendingIntent =
                 PendingIntent.getBroadcast(context.getApplicationContext(),
-                        13, someIntent, PendingIntent.FLAG_MUTABLE);
+                        getNotificationId(), someIntent, PendingIntent.FLAG_MUTABLE);
 
         // Create the reply action and add the remote input.
         NotificationCompat.Action action =

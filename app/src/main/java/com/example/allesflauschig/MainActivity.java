@@ -47,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private void createNotification() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.notify(13, NotificationUtils.createNotification(this));
+            Integer notificationId = NotificationUtils.getNotificationId();
+            notificationManager.notify(notificationId, NotificationUtils.createNotification(this, notificationId));
         } else {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
         }
