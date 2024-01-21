@@ -1,6 +1,8 @@
 package com.example.allesflauschig;
 
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.KEY_TEXT_REPLY;
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.Paths.MOOD_FILE;
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.getBaseDirectory;
 
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -14,7 +16,6 @@ import com.example.allesflauschig.utils.AllesFlauschigConstants.Extras;
 import com.example.allesflauschig.utils.CsvUtils;
 
 import java.time.Instant;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 public class MyReceiver extends BroadcastReceiver {
@@ -26,7 +27,7 @@ public class MyReceiver extends BroadcastReceiver {
         String answer = getMessageText(intent);
         LOG.info(String.format("Notification answered with: '%s'", answer));
         // todo: validate entry?
-        CsvUtils.addEntry(Objects.requireNonNull(context.getDataDir()).getAbsolutePath(), "mood.csv", new String[]{Instant.now().toString(), answer});
+        CsvUtils.addEntry(getBaseDirectory(context), MOOD_FILE, new String[]{Instant.now().toString(), answer});
         cancelNotification(context, intent);
     }
 

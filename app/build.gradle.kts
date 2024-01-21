@@ -26,8 +26,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     packagingOptions {
         exclude("META-INF/DEPENDENCIES")
@@ -50,6 +50,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("com.opencsv:opencsv:5.9")
+    implementation("androidx.work:work-runtime:2.9.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

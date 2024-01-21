@@ -1,5 +1,8 @@
 package com.example.allesflauschig;
 
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.Paths.MOOD_FILE;
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.getBaseDirectory;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
@@ -28,7 +31,7 @@ public class HistoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_history);
 
         text_history = findViewById(R.id.text_history);
-        List<String[]> history = CsvUtils.readFromFile(getDataDir().getAbsolutePath(), "mood.csv");
+        List<String[]> history = CsvUtils.readFromFile(getBaseDirectory(this.getBaseContext()), MOOD_FILE);
         history.forEach(entry -> text_history.append(Arrays.toString(entry)));
 
         button_backToMain = findViewById(R.id.button_backToMain);

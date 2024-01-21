@@ -1,5 +1,7 @@
 package com.example.allesflauschig.utils;
 
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.MOOD_FILE_HEADERS;
+
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
@@ -19,7 +21,7 @@ public class CsvUtils {
 
 
     public static void addEntry(String directory, String fileName, String[] values) {
-        File file = createFileWithHeaders(directory, fileName, new String[]{"timestamp", "mood"});
+        File file = createFileWithHeaders(directory, fileName, MOOD_FILE_HEADERS);
         appendToFile(file, values);
     }
 
@@ -35,7 +37,9 @@ public class CsvUtils {
             reader.close();
             return result;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            LOG.severe(String.format("An error occured when trying to read from file '%s' in directory '%s': %s", fileName, directory, e.getMessage()));
+            LOG.severe(Arrays.toString(e.getStackTrace()));
+            return Collections.emptyList();
         }
     }
 

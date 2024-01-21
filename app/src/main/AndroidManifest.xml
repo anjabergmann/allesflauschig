@@ -39,8 +39,15 @@
                 android:value=".MainActivity"/>
         </activity>
 
-        <receiver android:name=".MyReceiver">
-        </receiver>
+        <receiver android:name=".MyReceiver" />
+
+        <receiver android:name=".SwitchButtonListener" />
+
+        <service
+            android:name=".NotificationService"
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
 
     </application>
 
