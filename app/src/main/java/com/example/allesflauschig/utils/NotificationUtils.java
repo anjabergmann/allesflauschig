@@ -2,6 +2,7 @@ package com.example.allesflauschig.utils;
 
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.Extras.CLICKED_BUTTON;
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.Extras.CLICKED_BUTTON_OKAY;
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.Extras.CLICKED_BUTTON_OPEN_APP;
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.Extras.MOOD;
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.Extras.NOTIFICATION_ID;
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.NOTIFICATION_CHANNEL_ID;
@@ -17,6 +18,7 @@ import android.widget.RemoteViews;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.allesflauschig.MainActivity;
 import com.example.allesflauschig.R;
 import com.example.allesflauschig.SwitchButtonListener;
 
@@ -104,14 +106,18 @@ public class NotificationUtils {
     }
 
     private static NotificationCompat.Builder createNotificationBuilder(Context context, RemoteViews remoteViews, Integer mood, int notificationId) {
+
+        // Add value for each number button
         BUTTON_TO_VALUE_MAP.forEach((button, value) -> {
             Intent intent = new Intent(context, SwitchButtonListener.class);
             intent.putExtra(NOTIFICATION_ID, notificationId);
+            intent.putExtra(CLICKED_BUTTON, String.valueOf(value));
             intent.putExtra(MOOD, value);
             PendingIntent pendingIntent = PendingIntent.getBroadcast(context, getNotificationId(), intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
             remoteViews.setOnClickPendingIntent(button, pendingIntent);
         });
 
+        // Store value and close notification on okay button
         Intent okayIntent = new Intent(context, SwitchButtonListener.class);
         okayIntent.putExtra(CLICKED_BUTTON, CLICKED_BUTTON_OKAY);
         okayIntent.putExtra(NOTIFICATION_ID, notificationId);
@@ -121,14 +127,34 @@ public class NotificationUtils {
         PendingIntent okayPendingIntent = PendingIntent.getBroadcast(context, getNotificationId(), okayIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
         remoteViews.setOnClickPendingIntent(R.id.button_notify, okayPendingIntent);
 
+        // Open app to add more info on openapp button
+        Intent openAppIntent = new Intent(context, MainActivity.class);
+        openAppIntent.putExtra(CLICKED_BUTTON, CLICKED_BUTTON_OPEN_APP);
+        openAppIntent.putExtra(NOTIFICATION_ID, notificationId);
+        if (mood != null) {
+            openAppIntent.putExtra(MOOD, mood);
+        }
+        openAppIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent openAppPendingIntent = PendingIntent.getActivity(context, getNotificationId(), openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        remoteViews.setOnClickPendingIntent(R.id.button_openapp, openAppPendingIntent);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context.getApplicationContext(), NOTIFICATION_CHANNEL_ID)
+
+        //Intent openAppIntent = new Intent(context, SwitchButtonListener.class);
+        //openAppIntent.putExtra(CLICKED_BUTTON, CLICKED_BUTTON_OPEN_APP);
+        //openAppIntent.putExtra(NOTIFICATION_ID, notificationId);
+        //if (mood != null) {
+        //    openAppIntent.putExtra(MOOD, mood);
+        //}
+
+        //PendingIntent openAppPendingIntent = PendingIntent.getBroadcast(context, getNotificationId(), openAppIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
+        //remoteViews.setOnClickPendingIntent(R.id.button_openapp, openAppPendingIntent);
+
+
+        return new NotificationCompat.Builder(context.getApplicationContext(), NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stat_onesignal_default)
                 .setContentTitle("Alles flauschig?")
                 .setAutoCancel(true)
                 .setCustomBigContentView(remoteViews);
-
-        return builder;
     }
 
 }

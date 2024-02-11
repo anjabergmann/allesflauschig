@@ -5,6 +5,7 @@ import static com.example.allesflauschig.utils.AllesFlauschigConstants.getBaseDi
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -33,6 +34,8 @@ public class HistoryActivity extends AppCompatActivity {
         text_history = findViewById(R.id.text_history);
         List<String[]> history = CsvUtils.readFromFile(getBaseDirectory(this.getBaseContext()), MOOD_FILE);
         history.forEach(entry -> text_history.append(Arrays.toString(entry)));
+        text_history.setMovementMethod(new ScrollingMovementMethod());
+
 
         button_backToMain = findViewById(R.id.button_backToMain);
         button_backToMain.setOnClickListener(v -> backToMain());

@@ -26,6 +26,7 @@ public class AllesFlauschigConstants {
                 public static final String MOOD = "mood";
                 public static final String CLICKED_BUTTON = "clickedButton";
                 public static final String CLICKED_BUTTON_OKAY = "okayButton";
+                public static final String CLICKED_BUTTON_OPEN_APP = "openAppButton";
         }
 
 }

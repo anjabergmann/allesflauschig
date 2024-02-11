@@ -2,6 +2,7 @@ package com.example.allesflauschig;
 
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.Extras.CLICKED_BUTTON;
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.Extras.CLICKED_BUTTON_OKAY;
+import static com.example.allesflauschig.utils.AllesFlauschigConstants.Extras.CLICKED_BUTTON_OPEN_APP;
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.Extras.MOOD;
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.Paths.MOOD_FILE;
 import static com.example.allesflauschig.utils.AllesFlauschigConstants.getBaseDirectory;
@@ -24,25 +25,42 @@ public class SwitchButtonListener extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        LOG.info("I am here");
+        LOG.info("SwitchButtonListener received a notification interaction.");
 
         String clickedButton = intent.getStringExtra(CLICKED_BUTTON);
         int mood = intent.getIntExtra(MOOD, 99);
 
-        if (CLICKED_BUTTON_OKAY.equals(clickedButton) && mood == 99) {
-            LOG.info("No number selected!");
+        LOG.info(String.format("Notification button '%s' was clicked. Currently selected value is '%s'", clickedButton, mood));
+
+        if (CLICKED_BUTTON_OPEN_APP.equals(clickedButton) && mood == 99) {
+            // simply cancel the notification and open the app on the screen
+            LOG.info("'Open app' button was clicked without selecting a number. Cancelling notification.");
+            cancelNotification(context, intent);
+            Intent openApp = new Intent(context, MainActivity.class);
+            openApp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(openApp);
+        } else if (CLICKED_BUTTON_OPEN_APP.equals(clickedButton)) {
+            // a number was entered before clicking the open app button, so we want to store that and then cancel the notification and open the app on the screen
+            LOG.info("'Open app' button was clicked and a number was selected. Storing number and cancelling notification.");
+            cancelNotification(context, intent);
+            Intent openApp = new Intent(context, MainActivity.class);
+            openApp.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(openApp);
+        } else if (CLICKED_BUTTON_OKAY.equals(clickedButton) && mood == 99) {
+            // 'okay' button was clicked, but no number is selected - we do not accept that. Instead of cancelling the notification we add an info message.
+            LOG.info("'Okay' button was clicked and no number was selected. Adding info message to notification.");
             updateNotification(context, intent, null, "You gotta click on a Zahl first!");
         } else if (CLICKED_BUTTON_OKAY.equals(clickedButton)) {
-            LOG.info("Number selected, closing notification.");
+            // 'okay' button was clicked and a number was selected - we want to store the number and then cancel the notification
+            LOG.info("'Okay' button was clicked with a number selected. Storing number and closing notification.");
             CsvUtils.addEntry(getBaseDirectory(context), MOOD_FILE, new String[]{Instant.now().toString(), String.valueOf(mood)});
             cancelNotification(context, intent);
         } else {
-            updatePreviousButtonValue(context, mood);
+            // A button with a number was clicked. We want to store that number as an extra on the intent of the 'okay' and 'open app' buttons so we can store it if one of those is clicked. Also we will highlight the selected number in the notification.
+            LOG.info("A number button was clicked. Updating the notification to highlight the selected number and adding it to intent extras for the 'Okay' and 'Open app' buttons so it can be stored if one of those buttons is clicked.");
+            // updatePreviousButtonValue(context, mood);
             updateNotification(context, intent, mood,null);
         }
-
-        LOG.info("Answered with: " + getPreviousButtonValue(context));
-
     }
 
     private int getPreviousButtonValue(Context context) {

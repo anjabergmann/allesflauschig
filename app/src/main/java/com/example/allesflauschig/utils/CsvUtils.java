@@ -44,16 +44,16 @@ public class CsvUtils {
     }
 
     private static void appendToFile(File file, String[] values) {
-        try {
-            CSVWriter writer = new CSVWriter(new FileWriter(file, true));
+        try (CSVWriter writer = new CSVWriter(new FileWriter(file, true))) {
             List<String[]> data = Collections.singletonList(values);
             writer.writeAll(data);
-            writer.close();
+
+            //writer.close(); --> not needed. This will be done be the try-with-resources
 
             LOG.info("Content written to file " + file.getAbsolutePath());
         } catch (IOException e){
-            LOG.severe("Error occured when trying to add file content!");
-            LOG.severe(e.getMessage());
+            LOG.severe(String.format("Error occured when trying to add file content: %s", e.getMessage()));
+            e.printStackTrace();
         }
     }
 
